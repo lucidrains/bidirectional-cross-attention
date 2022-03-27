@@ -27,7 +27,6 @@ joint_cross_attn = BidirectionalCrossAttention(
     context_dim = 386
 )
 
-
 video_out, audio_out = joint_cross_attn(
     video,
     audio,
@@ -40,6 +39,10 @@ video_out, audio_out = joint_cross_attn(
 assert video_out.shape == video.shape
 assert audio_out.shape == audio.shape
 ```
+
+## Todo
+
+- [ ] allow for cosine sim attention
 
 ## Citations
 
