@@ -24,13 +24,14 @@ class BidirectionalCrossAttention(nn.Module):
         dim_head = 64,
         context_dim = None,
         dropout = 0.,
-        talking_heads = False
+        talking_heads = False,
+        prenorm = False,
     ):
         super().__init__()
         context_dim = default(context_dim, dim)
 
-        self.norm = nn.LayerNorm(dim)
-        self.context_norm = nn.LayerNorm(context_dim)
+        self.norm = nn.LayerNorm(dim) if prenorm else nn.Identity()
+        self.context_norm = nn.LayerNorm(context_dim) if prenorm else nn.Identity()
 
         self.heads = heads
         self.scale = dim_head ** -0.5
