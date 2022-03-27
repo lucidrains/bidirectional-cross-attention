@@ -57,7 +57,8 @@ class BidirectionalCrossAttention(nn.Module):
         context,
         mask = None,
         context_mask = None,
-        return_attn = False
+        return_attn = False,
+        rel_pos_bias = None
     ):
         b, i, j, h, device = x.shape[0], x.shape[-2], context.shape[-2], self.heads, x.device
 
@@ -76,6 +77,11 @@ class BidirectionalCrossAttention(nn.Module):
         # get similarities
 
         sim = einsum('b h i d, b h j d -> b h i j', qk, context_qk) * self.scale
+
+        # relative positional bias, if supplied
+
+        if exists(rel_pos_bias):
+            sim = sim + rel_pos_bias
 
         # mask
 
