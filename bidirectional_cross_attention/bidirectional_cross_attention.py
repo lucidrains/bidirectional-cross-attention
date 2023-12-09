@@ -9,10 +9,6 @@ def exists(val):
 def default(val, d):
     return val if exists(val) else d
 
-def stable_softmax(t, dim = -1):
-    t = t - t.amax(dim = dim, keepdim = True)
-    return t.softmax(dim = dim)
-
 # bidirectional cross attention - have two sequences attend to each other with 1 attention step
 
 class BidirectionalCrossAttention(nn.Module):
@@ -96,8 +92,8 @@ class BidirectionalCrossAttention(nn.Module):
         # get attention along both sequence length and context length dimensions
         # shared similarity matrix
 
-        attn = stable_softmax(sim, dim = -1)
-        context_attn = stable_softmax(sim, dim = -2)
+        attn = sim.softmax(dim = -1)
+        context_attn = sim.softmax(dim = -2)
 
         # dropouts
 
