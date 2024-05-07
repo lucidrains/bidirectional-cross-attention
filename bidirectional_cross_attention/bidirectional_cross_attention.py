@@ -21,7 +21,7 @@ class BidirectionalCrossAttention(nn.Module):
         context_dim = None,
         dropout = 0.,
         talking_heads = False,
-        prenorm = False,
+        prenorm = False
     ):
         super().__init__()
         context_dim = default(context_dim, dim)

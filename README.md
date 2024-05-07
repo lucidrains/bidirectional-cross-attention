@@ -46,4 +46,13 @@ assert audio_out.shape == audio.shape
 
 ## Citations
 
-As far as I know, I came up with it, but if you discover this in the literature, do let me know and I will cite it appropriately.
+```bibtex
+@article{Hiller2024PerceivingLS,
+    title   = {Perceiving Longer Sequences With Bi-Directional Cross-Attention Transformers},
+    author  = {Markus Hiller and Krista A. Ehinger and Tom Drummond},
+    journal = {ArXiv},
+    year    = {2024},
+    volume  = {abs/2402.12138},
+    url     = {https://api.semanticscholar.org/CorpusID:267751060}
+}
+```
