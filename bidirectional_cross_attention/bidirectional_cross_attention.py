@@ -1,7 +1,8 @@
 import torch
-from torch import nn
+from torch import nn, einsum
+from torch.nn import Module, ModuleList
+
 from einops import rearrange
-from torch import einsum
 
 def exists(val):
     return val is not None
@@ -26,8 +27,8 @@ class BidirectionalCrossAttention(nn.Module):
         super().__init__()
         context_dim = default(context_dim, dim)
 
-        self.norm = nn.LayerNorm(dim) if prenorm else nn.Identity()
-        self.context_norm = nn.LayerNorm(context_dim) if prenorm else nn.Identity()
+        self.norm = nn.RMSNorm(dim) if prenorm else nn.Identity()
+        self.context_norm = nn.RMSNorm(context_dim) if prenorm else nn.Identity()
 
         self.heads = heads
         self.scale = dim_head ** -0.5
@@ -121,3 +122,73 @@ class BidirectionalCrossAttention(nn.Module):
             return out, context_out, attn, context_attn
 
         return out, context_out
+
+# transformer
+
+def FeedForward(dim, mult = 4):
+    dim_hidden = int(dim * mult)
+    return nn.Sequential(
+        nn.RMSNorm(dim),
+        nn.Linear(dim, dim_hidden),
+        nn.GELU(),
+        nn.Linear(dim_hidden, dim)
+    )
+
+class BidirectionalCrossAttentionTransformer(Module):
+    def __init__(
+        self,
+        *,
+        dim,
+        depth,
+        context_dim = None,
+        ff_expansion_factor = 4.,
+        final_norms = False,
+        **attn_kwargs
+    ):
+        super().__init__()
+        context_dim = default(context_dim, dim)
+
+        self.layers = ModuleList()
+
+        for _ in range(depth):
+            attn = BidirectionalCrossAttention(
+                dim = dim,
+                context_dim = context_dim,
+                prenorm = True,
+                **attn_kwargs
+            )
+
+            ff = FeedForward(dim, ff_expansion_factor)
+
+            context_ff = FeedForward(context_dim, ff_expansion_factor)
+
+            self.layers.append(ModuleList([
+                attn,
+                ff,
+                context_ff
+            ]))
+
+        self.norm = nn.RMSNorm(dim) if final_norms else nn.Identity()
+        self.context_norm = nn.RMSNorm(dim) if final_norms else nn.Identity()
+
+    def forward(
+        self,
+        x,
+        context,
+        mask = None,
+        context_mask = None,
+        return_attn = False,
+        rel_pos_bias = None
+    ):
+
+        for attn, ff, context_ff in self.layers:
+
+            x_out, context_out = attn(x, context, mask = mask, context_mask = context_mask, rel_pos_bias = rel_pos_bias)
+
+            x = x + x_out
+            context = context + context_out
+
+            x = ff(x) + x
+            context = context_ff(context) + context
+
+        return self.norm(x), self.context_norm(context)

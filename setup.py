@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'bidirectional-cross-attention',
   packages = find_packages(exclude=[]),
-  version = '0.0.5',
+  version = '0.1.0',
   license='MIT',
   description = 'Bidirectional Cross Attention',
   long_description_content_type = 'text/markdown',
@@ -16,8 +16,8 @@ setup(
     'attention mechanism'
   ],
   install_requires=[
-    'einops>=0.7',
-    'torch>=2.0',
+    'einops>=0.8',
+    'torch>=2.4',
   ],
   classifiers=[
     'Development Status :: 4 - Beta',

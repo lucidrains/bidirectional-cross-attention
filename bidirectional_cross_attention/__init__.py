@@ -1,1 +1,4 @@
-from bidirectional_cross_attention.bidirectional_cross_attention import BidirectionalCrossAttention
+from bidirectional_cross_attention.bidirectional_cross_attention import (
+    BidirectionalCrossAttention,
+    BidirectionalCrossAttentionTransformer
+)
